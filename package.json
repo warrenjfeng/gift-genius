@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "AI Holiday Gift Guide Generator using Gemini 3 and Nano Banana Pro",
   "type": "module",
+  "homepage": "https://warrenjfeng.github.io/gift-genius",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -14,7 +17,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "gh-pages": "^6.3.0",
     "vite": "^5.0.8"
   }
 }
-

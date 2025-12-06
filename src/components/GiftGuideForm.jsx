@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './GiftGuideForm.css'
+import DualRangeSlider from './DualRangeSlider'
 
 const OCCASIONS = [
   'Christmas',
@@ -14,24 +15,22 @@ const OCCASIONS = [
 ]
 
 const EXAMPLE_DESCRIPTIONS = [
-  "My mom, 58, loves gardening, murder mystery podcasts, and trying new recipes. Budget: $50-200",
-  "My brother, 25, is into video games, craft beer, and hiking. Budget: $30-100",
-  "My girlfriend, 28, enjoys yoga, reading fantasy novels, and minimalist design. Budget: $40-150",
-  "My dad, 62, loves classic cars, woodworking, and jazz music. Budget: $50-300"
+  "My girlfriend, 31, enjoys snowboarding, coffee, and traveling. Budget: $70-100",
+  "My mom, 63, loves gardening, true crime documentaries, and trying new recipes. Budget: $50-70",
+  "My brother, 27, is into triathlons, training, and fashion. Budget: $30-50"
 ]
 
 function GiftGuideForm({ onSubmit, error }) {
   const [description, setDescription] = useState('')
-  const [budgetMin, setBudgetMin] = useState(50)
-  const [budgetMax, setBudgetMax] = useState(200)
+  const [budgetRange, setBudgetRange] = useState({ min: 30, max: 100 })
   const [occasion, setOccasion] = useState('Christmas')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSubmit({
       description,
-      budgetMin,
-      budgetMax,
+      budgetMin: budgetRange.min,
+      budgetMax: budgetRange.max,
       occasion
     })
   }
@@ -41,10 +40,13 @@ function GiftGuideForm({ onSubmit, error }) {
     // Try to extract budget from example
     const budgetMatch = example.match(/Budget:\s*\$\s*(\d+)\s*-\s*(\d+)/i)
     if (budgetMatch) {
-      setBudgetMin(parseInt(budgetMatch[1]))
-      setBudgetMax(parseInt(budgetMatch[2]))
+      setBudgetRange({
+        min: parseInt(budgetMatch[1]),
+        max: parseInt(budgetMatch[2])
+      })
     }
   }
+
 
   return (
     <div className="form-container">
@@ -57,7 +59,7 @@ function GiftGuideForm({ onSubmit, error }) {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the gift recipient... (e.g., age, interests, hobbies, personality)"
+            placeholder="Describe the gift recipient... (e.g. age, interests, hobbies, personality)"
             className="form-textarea"
             rows="5"
             required
@@ -81,35 +83,16 @@ function GiftGuideForm({ onSubmit, error }) {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="budgetMin" className="form-label">
-              Budget: ${budgetMin} - ${budgetMax}
+            <label htmlFor="budget" className="form-label">
+              Budget Range: ${budgetRange.min} - ${budgetRange.max}
             </label>
-            <div className="budget-inputs">
-              <input
-                type="range"
-                id="budgetMin"
-                min="0"
-                max="500"
-                step="10"
-                value={budgetMin}
-                onChange={(e) => setBudgetMin(parseInt(e.target.value))}
-                className="budget-slider"
-              />
-              <input
-                type="range"
-                id="budgetMax"
-                min="0"
-                max="1000"
-                step="10"
-                value={budgetMax}
-                onChange={(e) => setBudgetMax(parseInt(e.target.value))}
-                className="budget-slider"
-              />
-            </div>
-            <div className="budget-values">
-              <span>Min: ${budgetMin}</span>
-              <span>Max: ${budgetMax}</span>
-            </div>
+            <DualRangeSlider
+              min={0}
+              max={200}
+              step={5}
+              value={budgetRange}
+              onChange={setBudgetRange}
+            />
           </div>
 
           <div className="form-section">

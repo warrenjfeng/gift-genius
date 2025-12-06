@@ -79,14 +79,31 @@
   gap: 2rem;
 }
 
-.budget-inputs {
+.budget-range-container {
+  width: 100%;
+}
+
+.budget-range-inputs {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.5rem;
+}
+
+.budget-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.budget-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  min-width: 35px;
 }
 
 .budget-slider {
-  width: 100%;
+  flex: 1;
   height: 8px;
   border-radius: 4px;
   background: #e0e0e0;
@@ -102,6 +119,11 @@
   border-radius: 50%;
   background: #667eea;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.budget-slider::-webkit-slider-thumb:hover {
+  background: #764ba2;
 }
 
 .budget-slider::-moz-range-thumb {
@@ -111,13 +133,19 @@
   background: #667eea;
   cursor: pointer;
   border: none;
+  transition: background 0.2s;
 }
 
-.budget-values {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: #666;
+.budget-slider::-moz-range-thumb:hover {
+  background: #764ba2;
+}
+
+.budget-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #667eea;
+  min-width: 50px;
+  text-align: right;
 }
 
 .form-select {

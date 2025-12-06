@@ -10,10 +10,68 @@ function GiftGuideResult({ guide, onGenerateAnother }) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Gift Guide for ${guide.recipientName}</title>
+          <title>Gift Guide for ${guide.recipientName || 'Your Recipient'}</title>
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; }
-            .magazine-guide { max-width: 1200px; margin: 0 auto; }
+            @media print {
+              @page { size: letter; margin: 0.5in; }
+              body { margin: 0; padding: 0; }
+            }
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+              padding: 20px; 
+              margin: 0;
+            }
+            .magazine-guide { 
+              max-width: 100%;
+              margin: 0 auto;
+            }
+            .magazine-header {
+              text-align: center;
+              margin-bottom: 20px;
+              page-break-after: avoid;
+            }
+            .magazine-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 15px;
+              page-break-inside: avoid;
+            }
+            .magazine-item {
+              page-break-inside: avoid;
+              break-inside: avoid;
+            }
+            .magazine-item-image {
+              height: 150px !important;
+              margin-bottom: 10px;
+            }
+            .magazine-item-image img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            .magazine-item-content {
+              padding: 10px;
+            }
+            .item-name {
+              font-size: 14px !important;
+              margin-bottom: 5px;
+            }
+            .item-price {
+              font-size: 18px !important;
+            }
+            .item-description {
+              font-size: 11px !important;
+              line-height: 1.4;
+              margin: 8px 0;
+            }
+            .item-footer {
+              margin-top: 8px;
+              padding-top: 8px;
+              font-size: 10px;
+            }
+            .item-purchase-link {
+              display: none;
+            }
           </style>
         </head>
         <body>${content}</body>
@@ -21,6 +79,54 @@ function GiftGuideResult({ guide, onGenerateAnother }) {
     `)
     printWindow.document.close()
     printWindow.print()
+  }
+
+  const handleShare = async () => {
+    try {
+      // Create a shareable data URL
+      const guideData = {
+        recipientName: guide.recipientName,
+        occasion: guide.occasion,
+        recommendations: guide.recommendations.map(g => ({
+          name: g.name,
+          price: g.price,
+          reasoning: g.reasoning,
+          category: g.category,
+          purchase_link: g.purchase_link
+        }))
+      }
+      
+      const dataStr = JSON.stringify(guideData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      // Try Web Share API first
+      if (navigator.share) {
+        await navigator.share({
+          title: `${guide.recipientName || 'Gift'}'s Gift Guide`,
+          text: `Check out this personalized gift guide for ${guide.occasion}!`,
+          url: window.location.href
+        })
+      } else {
+        // Fallback: copy to clipboard
+        const shareText = `${guide.recipientName || 'Gift'}'s Gift Guide for ${guide.occasion}\n\n` +
+          guide.recommendations.map(g => `• ${g.name} - $${g.price}`).join('\n') +
+          `\n\nView full guide: ${window.location.href}`
+        
+        await navigator.clipboard.writeText(shareText)
+        alert('Gift guide copied to clipboard!')
+      }
+    } catch (error) {
+      console.error('Share failed:', error)
+      // Fallback: copy JSON to clipboard
+      try {
+        const dataStr = JSON.stringify(guideData, null, 2)
+        await navigator.clipboard.writeText(dataStr)
+        alert('Gift guide data copied to clipboard!')
+      } catch (e) {
+        alert('Share not available. Please use Print/Download instead.')
+      }
+    }
   }
 
   return (
@@ -31,6 +137,9 @@ function GiftGuideResult({ guide, onGenerateAnother }) {
           <p className="occasion-badge">{guide.occasion}</p>
         </div>
         <div className="result-actions">
+          <button onClick={handleShare} className="share-button">
+            🔗 Share
+          </button>
           <button onClick={handleDownload} className="download-button">
             📥 Print/Download
           </button>
@@ -42,7 +151,11 @@ function GiftGuideResult({ guide, onGenerateAnother }) {
 
       <div className="magazine-guide">
         <div className="magazine-header">
-          <h1 className="magazine-title">Gift Guide for {guide.recipientName || 'Your Recipient'}</h1>
+          <h1 className="magazine-title">
+            {guide.recipientName 
+              ? `${guide.recipientName}'s Gift Guide`
+              : 'Your Gift Guide'}
+          </h1>
           <p className="magazine-subtitle">Curated with care for {guide.occasion}</p>
         </div>
 
